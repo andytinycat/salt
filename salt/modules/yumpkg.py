@@ -320,3 +320,22 @@ def purge(pkgs):
         salt '*' pkg.purge <package name>
     '''
     return remove(pkgs)
+
+def grouplist():
+    
+    yb = yum.YumBase()
+    return [group.ui_name for group in yb.comps.get_groups()]
+
+def groupinstall(group):
+
+    yb = yum.YumBase()
+    transaction_members = yb.selectGroup(group)
+    yb.resolveDeps()
+    yb.processTransaction(rpmDisplay=yum.rpmtrans.NoOutputCallBack())
+    yb.closeRpmDB()
+    
+    installed_pkgs = []
+    for member in transaction_members:
+        installed_pkgs.append(member.po.name)
+
+    return installed_pkgs
